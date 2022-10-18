@@ -1,9 +1,16 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 
 export default function App() {
   const [currentNumber, setCurrentNumber] = useState("");
   const [lastNumber, setLastNumber] = useState("");
+  const [text, setInput] = useState("");
   const buttons = [
     "C",
     "%",
@@ -57,7 +64,19 @@ export default function App() {
         )
       ) {
         setCurrentNumber(currentNumber + btnPressed);
-      }
+      } else if (
+        !validInput(currentNumber) &&
+        !(
+          currentNumber.length == 0 &&
+          (btnPressed == "*" || btnPressed == "/" || btnPressed == ".")
+        )
+      )
+        setCurrentNumber(
+          currentNumber.replace(
+            currentNumber[currentNumber.length - 1],
+            btnPressed
+          )
+        );
       return;
     }
 
@@ -101,7 +120,15 @@ export default function App() {
     <View>
       <View style={styles.results}>
         <Text style={styles.prevText}>{lastNumber}</Text>
-        <Text style={styles.resultText}>{currentNumber}</Text>
+        <TextInput
+          style={styles.inputText}
+          onChangeText={(text) => {
+            setInput(text), setCurrentNumber(text);
+          }}
+          value={currentNumber}
+          showSoftInputOnFocus={false}
+          selectTextOnFocus={true}
+        />
       </View>
 
       <View style={styles.buttons}>
@@ -182,10 +209,12 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     justifyContent: "flex-end",
   },
-  resultText: {
-    maxHeight: 45,
-    color: "#b5b7bb",
-    margin: 15,
+  inputText: {
+    height: 60,
+    width: "100%",
+    textAlign: "right",
+    padding: 10,
+    color: "#fff",
     fontSize: 40,
   },
   prevText: {
