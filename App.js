@@ -1,47 +1,46 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
   Text,
   TextInput,
   TouchableOpacity,
-} from "react-native";
+} from 'react-native';
 
 export default function App() {
-  const [currentNumber, setCurrentNumber] = useState("");
-  const [lastNumber, setLastNumber] = useState("");
-  const [text, setInput] = useState("");
+  const [currentNumber, setCurrentNumber] = useState('');
+  const [lastNumber, setLastNumber] = useState('');
   const buttons = [
-    "C",
-    "%",
-    "DEL",
-    "/",
+    'C',
+    '%',
+    'DEL',
+    '/',
     7,
     8,
     9,
-    "*",
+    '*',
     4,
     5,
     6,
-    "-",
+    '-',
     1,
     2,
     3,
-    "+",
+    '+',
     0,
-    ".",
-    "=",
+    '.',
+    '=',
   ];
 
   const validInput = (currentNumber) => {
     let len = currentNumber.length;
     if (
-      currentNumber[len - 1] !== "+" &&
-      currentNumber[len - 1] !== "-" &&
-      currentNumber[len - 1] !== "*" &&
-      currentNumber[len - 1] !== "/" &&
-      currentNumber[len - 1] !== "%" &&
-      currentNumber[len - 1] !== "."
+      currentNumber[len - 1] !== '+' &&
+      currentNumber[len - 1] !== '-' &&
+      currentNumber[len - 1] !== '*' &&
+      currentNumber[len - 1] !== '/' &&
+      currentNumber[len - 1] !== '%' &&
+      currentNumber[len - 1] !== '.'
     )
       return true;
     return false;
@@ -49,18 +48,22 @@ export default function App() {
 
   const handleInput = (btnPressed) => {
     if (
-      btnPressed === "+" ||
-      btnPressed === "-" ||
-      btnPressed === "*" ||
-      btnPressed === "/" ||
-      btnPressed === "%" ||
-      btnPressed === "."
+      btnPressed === '+' ||
+      btnPressed === '-' ||
+      btnPressed === '*' ||
+      btnPressed === '/' ||
+      btnPressed === '%' ||
+      btnPressed === '.'
     ) {
       if (
         validInput(currentNumber) &&
         !(
           currentNumber.length == 0 &&
-          (btnPressed == "*" || btnPressed == "/" || btnPressed == ".")
+          (btnPressed == '*' ||
+            btnPressed == '/' ||
+            btnPressed == '.' ||
+            btnPressed == '%' ||
+            btnPressed == '+')
         )
       ) {
         setCurrentNumber(currentNumber + btnPressed);
@@ -68,7 +71,19 @@ export default function App() {
         !validInput(currentNumber) &&
         !(
           currentNumber.length == 0 &&
-          (btnPressed == "*" || btnPressed == "/" || btnPressed == ".")
+          (btnPressed == '*' ||
+            btnPressed == '/' ||
+            btnPressed == '.' ||
+            btnPressed == '%' ||
+            btnPressed == '+')
+        ) &&
+        !(
+          currentNumber == '-' &&
+          (btnPressed == '*' ||
+            btnPressed == '/' ||
+            btnPressed == '.' ||
+            btnPressed == '%' ||
+            btnPressed == '+')
         )
       )
         setCurrentNumber(
@@ -81,16 +96,16 @@ export default function App() {
     }
 
     switch (btnPressed) {
-      case "DEL":
+      case 'DEL':
         setCurrentNumber(currentNumber.substring(0, currentNumber.length - 1));
         return;
-      case "C":
-        setLastNumber("");
-        setCurrentNumber("");
+      case 'C':
+        setLastNumber('');
+        setCurrentNumber('');
         return;
-      case "=":
+      case '=':
         if (validInput(currentNumber)) {
-          setLastNumber(currentNumber + "=");
+          setLastNumber(currentNumber + '=');
           calculate();
         }
         return;
@@ -101,12 +116,12 @@ export default function App() {
   const calculate = () => {
     let lastChar = currentNumber[currentNumber.length - 1];
     if (
-      lastChar === "/" ||
-      lastChar === "*" ||
-      lastChar === "-" ||
-      lastChar === "+" ||
-      lastChar === "." ||
-      lastChar === "%"
+      lastChar === '/' ||
+      lastChar === '*' ||
+      lastChar === '-' ||
+      lastChar === '+' ||
+      lastChar === '.' ||
+      lastChar === '%'
     ) {
       return;
     } else {
@@ -123,7 +138,11 @@ export default function App() {
         <TextInput
           style={styles.inputText}
           onChangeText={(text) => {
-            setInput(text), setCurrentNumber(text);
+            try {
+              setCurrentNumber(eval(text).toString());
+            } catch {
+              alert('Biểu thức không hợp lệ!');
+            }
           }}
           value={currentNumber}
           showSoftInputOnFocus={false}
@@ -133,19 +152,17 @@ export default function App() {
 
       <View style={styles.buttons}>
         {buttons.map((btn) =>
-          btn === "=" ||
-          btn === "/" ||
-          btn === "*" ||
-          btn === "-" ||
-          btn === "+" ? (
+          btn === '=' ||
+          btn === '/' ||
+          btn === '*' ||
+          btn === '-' ||
+          btn === '+' ? (
             <TouchableOpacity
               key={btn}
-              style={[styles.button, { backgroundColor: "#2c7ef4" }]}
-              onPress={() => handleInput(btn)}
-            >
+              style={[styles.button, { backgroundColor: '#2c7ef4' }]}
+              onPress={() => handleInput(btn)}>
               <Text
-                style={[styles.textButton, { color: "white", fontSize: 28 }]}
-              >
+                style={[styles.textButton, { color: 'white', fontSize: 28 }]}>
                 {btn}
               </Text>
             </TouchableOpacity>
@@ -156,27 +173,25 @@ export default function App() {
               style={[
                 styles.button,
                 {
-                  backgroundColor: "#303946",
-                  minWidth: "36%",
+                  backgroundColor: '#303946',
+                  minWidth: '36%',
                 },
               ]}
-              onPress={() => handleInput(btn)}
-            >
+              onPress={() => handleInput(btn)}>
               <Text style={styles.textButton}>{btn}</Text>
             </TouchableOpacity>
           ) : //
-          btn === "." ? (
+          btn === '.' ? (
             <TouchableOpacity
               key={btn}
               style={[
                 styles.button,
                 {
-                  backgroundColor: "#303946",
-                  minWidth: "37%",
+                  backgroundColor: '#303946',
+                  minWidth: '37%',
                 },
               ]}
-              onPress={() => handleInput(btn)}
-            >
+              onPress={() => handleInput(btn)}>
               <Text style={styles.textButton}>{btn}</Text>
             </TouchableOpacity>
           ) : (
@@ -187,11 +202,10 @@ export default function App() {
                 styles.button,
                 {
                   backgroundColor:
-                    typeof btn === "number" ? "#303946" : "#414853",
+                    typeof btn === 'number' ? '#303946' : '#414853',
                 },
               ]}
-              onPress={() => handleInput(btn)}
-            >
+              onPress={() => handleInput(btn)}>
               <Text style={styles.textButton}>{btn}</Text>
             </TouchableOpacity>
           )
@@ -203,43 +217,43 @@ export default function App() {
 
 const styles = StyleSheet.create({
   results: {
-    backgroundColor: "#282f3b",
-    maxWidth: "100%",
-    minHeight: "35%",
-    alignItems: "flex-end",
-    justifyContent: "flex-end",
+    backgroundColor: '#282f3b',
+    maxWidth: '100%',
+    minHeight: '35%',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
   },
   inputText: {
     height: 60,
-    width: "100%",
-    textAlign: "right",
+    width: '100%',
+    textAlign: 'right',
     padding: 10,
-    color: "#fff",
+    color: '#fff',
     fontSize: 40,
   },
   prevText: {
-    color: "#B5B7BB",
+    color: '#B5B7BB',
     fontSize: 30,
     marginRight: 10,
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
   },
   buttons: {
-    width: "100%",
-    height: "35%",
-    flexDirection: "row",
-    flexWrap: "wrap",
+    width: '100%',
+    height: '35%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   button: {
-    borderColor: "#a6a0a0",
+    borderColor: '#a6a0a0',
     borderWidth: 2,
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: "24%",
-    minHeight: "54%",
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: '24%',
+    minHeight: '54%',
     flex: 1,
   },
   textButton: {
-    color: "#b5b7bb",
+    color: '#b5b7bb',
     fontSize: 28,
   },
 });
