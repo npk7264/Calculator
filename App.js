@@ -228,14 +228,23 @@ export default function App() {
             )
           )
         ) : (
-          <ScrollView>
-            <Text style={{ textAlign: 'center', fontSize: 28, padding: 10 }}>
-              History
+          <View>
+            <ScrollView style={{ height: '90%' }}>
+              <Text style={{ textAlign: 'center', fontSize: 28, padding: 10 }}>
+                History
+              </Text>
+              {exp.map((item) => {
+                return <Text style={styles.history_text}>{item}</Text>;
+              })}
+            </ScrollView>
+            <Text
+              style={{ fontSize: 24, textAlign: 'center', paddingTop: 5 }}
+              onPress={() => {
+                setExp([]);
+              }}>
+              Delete history
             </Text>
-            {exp.map((item) => {
-              return <Text style={styles.history_text}>{item}</Text>;
-            })}
-          </ScrollView>
+          </View>
         )}
       </View>
     </View>
@@ -308,5 +317,7 @@ const styles = StyleSheet.create({
   history_text: {
     fontSize: 28,
     color: '#414853',
+    marginRight: 10,
+    textAlign: 'right',
   },
 });
