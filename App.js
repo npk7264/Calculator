@@ -2,14 +2,19 @@ import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
 
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 export default function App() {
   const [currentNumber, setCurrentNumber] = useState('');
   const [lastNumber, setLastNumber] = useState('');
+  const [showHistory, setShowHistory] = useState(false);
+  const [exp, setExp] = useState([]);
   const buttons = [
     'C',
     '%',
@@ -126,6 +131,7 @@ export default function App() {
       return;
     } else {
       let result = eval(currentNumber).toString();
+      setExp([...exp, currentNumber + '=' + result]);
       setCurrentNumber(result);
       return;
     }
@@ -134,12 +140,22 @@ export default function App() {
   return (
     <View>
       <View style={styles.results}>
+        <View style={styles.historyButton}>
+          <Icon
+            name={'history'}
+            size={24}
+            color={'black'}
+            onPress={() => {
+              setShowHistory(!showHistory);
+            }}
+          />
+        </View>
         <Text style={styles.prevText}>{lastNumber}</Text>
         <TextInput
           style={styles.inputText}
           onChangeText={(text) => {
             try {
-              setCurrentNumber(eval(text).toString());
+              setCurrentNumber(text);
             } catch {
               alert('Biểu thức không hợp lệ!');
             }
@@ -150,65 +166,76 @@ export default function App() {
         />
       </View>
 
-      <View style={styles.buttons}>
-        {buttons.map((btn) =>
-          btn === '=' ||
-          btn === '/' ||
-          btn === '*' ||
-          btn === '-' ||
-          btn === '+' ? (
-            <TouchableOpacity
-              key={btn}
-              style={[styles.button, { backgroundColor: '#2c7ef4' }]}
-              onPress={() => handleInput(btn)}>
-              <Text
-                style={[styles.textButton, { color: 'white', fontSize: 28 }]}>
-                {btn}
-              </Text>
-            </TouchableOpacity>
-          ) : //
-          btn === 0 ? (
-            <TouchableOpacity
-              key={btn}
-              style={[
-                styles.button,
-                {
-                  backgroundColor: '#303946',
-                  minWidth: '36%',
-                },
-              ]}
-              onPress={() => handleInput(btn)}>
-              <Text style={styles.textButton}>{btn}</Text>
-            </TouchableOpacity>
-          ) : //
-          btn === '.' ? (
-            <TouchableOpacity
-              key={btn}
-              style={[
-                styles.button,
-                {
-                  backgroundColor: '#303946',
-                  minWidth: '37%',
-                },
-              ]}
-              onPress={() => handleInput(btn)}>
-              <Text style={styles.textButton}>{btn}</Text>
-            </TouchableOpacity>
-          ) : (
-            //
-            <TouchableOpacity
-              key={btn}
-              style={[
-                styles.button,
-                {
-                  backgroundColor:
-                    typeof btn === 'number' ? '#303946' : '#414853',
-                },
-              ]}
-              onPress={() => handleInput(btn)}>
-              <Text style={styles.textButton}>{btn}</Text>
-            </TouchableOpacity>
+      <View style={!showHistory ? styles.buttons : styles.history_theme}>
+        {!showHistory ? (
+          buttons.map((btn) =>
+            btn === '=' ||
+            btn === '/' ||
+            btn === '*' ||
+            btn === '-' ||
+            btn === '+' ? (
+              <TouchableOpacity
+                key={btn}
+                style={[styles.button, { backgroundColor: '#2c7ef4' }]}
+                onPress={() => handleInput(btn)}>
+                <Text
+                  style={[styles.textButton, { color: 'white', fontSize: 28 }]}>
+                  {btn}
+                </Text>
+              </TouchableOpacity>
+            ) : //
+            btn === 0 ? (
+              <TouchableOpacity
+                key={btn}
+                style={[
+                  styles.button,
+                  {
+                    backgroundColor: '#303946',
+                    minWidth: '36%',
+                  },
+                ]}
+                onPress={() => handleInput(btn)}>
+                <Text style={styles.textButton}>{btn}</Text>
+              </TouchableOpacity>
+            ) : //
+            btn === '.' ? (
+              <TouchableOpacity
+                key={btn}
+                style={[
+                  styles.button,
+                  {
+                    backgroundColor: '#303946',
+                    minWidth: '37%',
+                  },
+                ]}
+                onPress={() => handleInput(btn)}>
+                <Text style={styles.textButton}>{btn}</Text>
+              </TouchableOpacity>
+            ) : (
+              //
+              <TouchableOpacity
+                key={btn}
+                style={[
+                  styles.button,
+                  {
+                    backgroundColor:
+                      typeof btn === 'number' ? '#303946' : '#414853',
+                  },
+                ]}
+                onPress={() => handleInput(btn)}>
+                <Text style={styles.textButton}>{btn}</Text>
+              </TouchableOpacity>
+            )
           )
+        ) : (
+          <ScrollView>
+            <Text style={{ textAlign: 'center', fontSize: 28, padding: 10 }}>
+              History
+            </Text>
+            {exp.map((item) => {
+              return <Text style={styles.history_text}>{item}</Text>;
+            })}
+          </ScrollView>
         )}
       </View>
     </View>
@@ -216,6 +243,22 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  icon_style: {
+    flexDirection: 'row',
+    flexWrap: 'no-wrap',
+    alignSelf: 'flex-start',
+    margin: 15,
+  },
+  historyButton: {
+    bottom: '15%',
+    margin: 15,
+    backgroundColor: '#7b8084',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
   results: {
     backgroundColor: '#282f3b',
     maxWidth: '100%',
@@ -255,5 +298,15 @@ const styles = StyleSheet.create({
   textButton: {
     color: '#b5b7bb',
     fontSize: 28,
+  },
+  history_theme: {
+    paddingRight: 10,
+    width: '100%',
+    height: '65%',
+    backgroundColor: '#c1c1c1',
+  },
+  history_text: {
+    fontSize: 28,
+    color: '#414853',
   },
 });
