@@ -2,34 +2,23 @@ import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
 
+import Icon from 'react-native-vector-icons/FontAwesome';
+
 export default function App() {
   const [currentNumber, setCurrentNumber] = useState('');
   const [lastNumber, setLastNumber] = useState('');
-  const buttons = [
-    'C',
-    '%',
-    'DEL',
-    '/',
-    7,
-    8,
-    9,
-    '*',
-    4,
-    5,
-    6,
-    '-',
-    1,
-    2,
-    3,
-    '+',
-    0,
-    '.',
-    '=',
+  const buttons = 
+  ['C', '%', 'DEL', '/',
+    7, 8, 9, '*',
+    4, 5, 6, '-',
+    1, 2, 3, '+',
+    0, '.', '=',
   ];
   // history
   const [showHistory, setShowHistory] = useState(false);
@@ -87,32 +76,64 @@ export default function App() {
   };
 
   const calculate = () => {
-    let lastChar = currentNumber[currentNumber.length - 1];
-    if (
-      lastChar === '/' ||
-      lastChar === '*' ||
-      lastChar === '-' ||
-      lastChar === '+' ||
-      lastChar === '.' ||
-      lastChar === '%'
-    ) {
-      return;
+    let result = eval(currentNumber).toString();
+    setPrevResults([...prevResults, currentNumber + '=' + result]);
+    setCurrentNumber(result);
+    return;
+  };
+
+  const searchFilter = (text) => {
+    // Check if searched text is not blank
+    if (text) {
+      const newData = prevResults.filter((item) => {
+        return item.indexOf(text) > -1;
+      });
+      setFilteredText(newData);
+      setSearchText(text);
     } else {
-      let result = eval(currentNumber).toString();
-      setCurrentNumber(result);
-      return;
+      setSearchChange(false);
+      setSearchText('');
     }
   };
 
   return (
     <View>
       <View style={styles.results}>
-        <Text style={styles.prevText}>{lastNumber}</Text>
+        <View style={styles.menu}>
+          {showHistory ? (
+            <TextInput
+              style={styles.searchBar}
+              onChangeText={(text) => {
+                setSearchChange(true);
+                searchFilter(text);
+              }}
+              value={searchText}
+              placeholder="Search Here"
+            />
+          ) : null}
+
+          <View style={styles.historyButton}>
+            <Icon
+              name={!showHistory ? 'history' : 'calculator'}
+              size={24}
+              color={'black'}
+              onPress={() => {
+                setSearchIcon(!searchIcon);
+                setShowHistory(!showHistory);
+                setSearchChange(false);
+                setSearchText('');
+              }}
+            />
+          </View>
+        </View>
+
+        <Text style={styles.expText}>{lastNumber}</Text>
+
         <TextInput
           style={styles.inputText}
           onChangeText={(text) => {
             try {
-              setCurrentNumber(eval(text).toString());
+              if (typeof eval(text) == 'number') setCurrentNumber(text);
             } catch {
               alert('Biểu thức không hợp lệ!');
             }
@@ -123,65 +144,51 @@ export default function App() {
         />
       </View>
 
-      <View style={styles.buttons}>
-        {buttons.map((btn) =>
-          btn === '=' ||
-          btn === '/' ||
-          btn === '*' ||
-          btn === '-' ||
-          btn === '+' ? (
+      <View style={!showHistory ? styles.buttons : styles.historyList}>
+        {!showHistory ? (
+          buttons.map((btn) => (
             <TouchableOpacity
               key={btn}
-              style={[styles.button, { backgroundColor: '#2c7ef4' }]}
+              style={[
+                styles.button,
+                ['+', '-', '*', '/', '='].includes(btn)
+                  ? { backgroundColor: '#2c7ef4' }
+                  : btn == 0
+                  ? { backgroundColor: '#303946', minWidth: '36%' }
+                  : btn == '.'
+                  ? { backgroundColor: '#303946', minWidth: '37%' }
+                  : {
+                      backgroundColor:
+                        typeof btn === 'number' ? '#303946' : '#414853',
+                    },
+              ]}
               onPress={() => handleInput(btn)}>
-              <Text
-                style={[styles.textButton, { color: 'white', fontSize: 28 }]}>
-                {btn}
+              <Text style={styles.textButton}>{btn}</Text>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <View>
+            <ScrollView style={{ height: '90%' }}>
+              <Text style={{ textAlign: 'center', fontSize: 28, padding: 10 }}>
+                History
               </Text>
-            </TouchableOpacity>
-          ) : //
-          btn === 0 ? (
-            <TouchableOpacity
-              key={btn}
-              style={[
-                styles.button,
-                {
-                  backgroundColor: '#303946',
-                  minWidth: '36%',
-                },
-              ]}
-              onPress={() => handleInput(btn)}>
-              <Text style={styles.textButton}>{btn}</Text>
-            </TouchableOpacity>
-          ) : //
-          btn === '.' ? (
-            <TouchableOpacity
-              key={btn}
-              style={[
-                styles.button,
-                {
-                  backgroundColor: '#303946',
-                  minWidth: '37%',
-                },
-              ]}
-              onPress={() => handleInput(btn)}>
-              <Text style={styles.textButton}>{btn}</Text>
-            </TouchableOpacity>
-          ) : (
-            //
-            <TouchableOpacity
-              key={btn}
-              style={[
-                styles.button,
-                {
-                  backgroundColor:
-                    typeof btn === 'number' ? '#303946' : '#414853',
-                },
-              ]}
-              onPress={() => handleInput(btn)}>
-              <Text style={styles.textButton}>{btn}</Text>
-            </TouchableOpacity>
-          )
+              {searchChange
+                ? filteredText.map((item) => {
+                    return <Text style={styles.historyText}>{item}</Text>;
+                  })
+                : prevResults.map((item) => {
+                    return <Text style={styles.historyText}>{item}</Text>;
+                  })}
+            </ScrollView>
+            <Text
+              style={{ fontSize: 16, textAlign: 'center', paddingTop: 5 }}
+              onPress={() => {
+                setPrevResults([]);
+                setFilteredText([]);
+              }}>
+              Delete history
+            </Text>
+          </View>
         )}
       </View>
     </View>
@@ -189,6 +196,29 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  menu: {
+    flexDirection: 'row',
+    bottom: '10%',
+  },
+  historyButton: {
+    margin: 10,
+    backgroundColor: '#c1c1c1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  searchBar: {
+    margin: 10,
+    backgroundColor: '#c1c1c1',
+    fontSize: 18,
+    textAlign: 'right',
+    padding: 10,
+    width: '75%',
+    height: 50,
+    borderRadius: 25,
+  },
   results: {
     backgroundColor: '#282f3b',
     maxWidth: '100%',
@@ -226,7 +256,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   textButton: {
-    color: 'white',
+    color: '#b5b7bb',
     fontSize: 28,
+  },
+  historyList: {
+    paddingRight: 10,
+    width: '100%',
+    height: '65%',
+    backgroundColor: '#c1c1c1',
+  },
+  historyText: {
+    fontSize: 22,
+    color: '#414853',
+    marginHorizontal: 10,
+    marginVertical: 5,
+    textAlign: 'right',
   },
 });
