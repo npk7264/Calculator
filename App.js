@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   textButton: {
-    color: '#b5b7bb',
+    color: 'white',
     fontSize: 28,
   },
   historyList: {
