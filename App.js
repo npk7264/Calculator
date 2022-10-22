@@ -6,6 +6,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  KeyboardAvoidingView,
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -13,8 +14,14 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 export default function App() {
   const [currentNumber, setCurrentNumber] = useState('');
   const [lastNumber, setLastNumber] = useState('');
-  const [showHistory, setShowHistory] = useState(false);
-  const [exp, setExp] = useState([]);
+  const [showHistory, setShowHistory] = useState(true);
+  //
+  const [searchIcon, setSearchIcon] = useState(false);
+  const [search, setSearch] = useState('');
+  const [filteredDataSource, setFilteredDataSource] = useState([]);
+  const [searchChange, setSearchChange] = useState(false);
+  // const [exp, setExp] = useState([]);
+  const [exp, setExp] = useState(['1+1=2', '2+2=4', '4+1=5', '5+5=10']);
   const buttons = [
     'C',
     '%',
@@ -137,18 +144,62 @@ export default function App() {
     }
   };
 
+  const searchFilter = (text) => {
+    // Check if searched text is not blank
+    if (text) {
+      // Inserted text is not blank
+      // Filter the history
+      // Update FilteredDataSource
+      const newData = exp.filter((item) => {
+        return item.indexOf(text) > -1;
+      });
+      setFilteredDataSource(newData);
+      setSearch(text);
+    } else {
+      // Inserted text is blank
+      // Reset FilteredDataSource
+      setFilteredDataSource(exp);
+      setSearch(text);
+    }
+  };
+
   return (
     <View>
       <View style={styles.results}>
-        <View style={styles.historyButton}>
-          <Icon
-            name={'history'}
-            size={24}
-            color={'black'}
-            onPress={() => {
-              setShowHistory(!showHistory);
-            }}
-          />
+        <View style={styles.menu}>
+          {showHistory ? (
+            <TextInput
+              style={{
+                backgroundColor: '#7b8084',
+                color: '#000',
+                fontSize: 18,
+                borderRadius: 25,
+                textAlign: 'right',
+                padding: 10,
+                width: '75%',
+                height: 50,
+                bottom: '15%',
+                margin: 10,
+              }}
+              onChangeText={(text) => {
+                setSearchChange(true), searchFilter(text);
+              }}
+              value={search}
+              underlineColorAndroid="transparent"
+              placeholder="Search Here"
+            />
+          ) : null}
+          <View style={styles.historyButton}>
+            <Icon
+              name={'history'}
+              size={24}
+              color={'black'}
+              onPress={() => {
+                setSearchIcon(!searchIcon);
+                setShowHistory(!showHistory);
+              }}
+            />
+          </View>
         </View>
         <Text style={styles.prevText}>{lastNumber}</Text>
         <TextInput
@@ -162,7 +213,7 @@ export default function App() {
           }}
           value={currentNumber}
           showSoftInputOnFocus={false}
-          selectTextOnFocus={true}
+          selectTextOnFocus={false}
         />
       </View>
 
@@ -228,14 +279,27 @@ export default function App() {
             )
           )
         ) : (
-          <ScrollView>
-            <Text style={{ textAlign: 'center', fontSize: 28, padding: 10 }}>
-              History
+          <View>
+            <ScrollView style={{ height: '90%' }}>
+              <Text style={{ textAlign: 'center', fontSize: 28, padding: 10 }}>
+                History
+              </Text>
+              {searchChange
+                ? filteredDataSource.map((item) => {
+                    return <Text style={styles.history_text}>{item}</Text>;
+                  })
+                : exp.map((item) => {
+                    return <Text style={styles.history_text}>{item}</Text>;
+                  })}
+            </ScrollView>
+            <Text
+              style={{ fontSize: 16, textAlign: 'center', paddingTop: 5 }}
+              onPress={() => {
+                setExp([]);
+              }}>
+              Delete history
             </Text>
-            {exp.map((item) => {
-              return <Text style={styles.history_text}>{item}</Text>;
-            })}
-          </ScrollView>
+          </View>
         )}
       </View>
     </View>
@@ -243,15 +307,12 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  icon_style: {
+  menu: {
     flexDirection: 'row',
-    flexWrap: 'no-wrap',
-    alignSelf: 'flex-start',
-    margin: 15,
   },
   historyButton: {
     bottom: '15%',
-    margin: 15,
+    margin: 10,
     backgroundColor: '#7b8084',
     alignItems: 'center',
     justifyContent: 'center',
@@ -308,5 +369,7 @@ const styles = StyleSheet.create({
   history_text: {
     fontSize: 28,
     color: '#414853',
+    marginRight: 10,
+    textAlign: 'right',
   },
 });
