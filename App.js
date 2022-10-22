@@ -2,19 +2,14 @@ import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
 
-import Icon from 'react-native-vector-icons/FontAwesome';
-
 export default function App() {
   const [currentNumber, setCurrentNumber] = useState('');
   const [lastNumber, setLastNumber] = useState('');
-  const [showHistory, setShowHistory] = useState(false);
-  const [exp, setExp] = useState([]);
   const buttons = [
     'C',
     '%',
@@ -36,67 +31,39 @@ export default function App() {
     '.',
     '=',
   ];
+  // history
+  const [showHistory, setShowHistory] = useState(false);
+  const [prevResults, setPrevResults] = useState([]);
+  // search
+  const [searchIcon, setSearchIcon] = useState(false);
+  // check if search TextInput change
+  const [searchChange, setSearchChange] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [filteredText, setFilteredText] = useState([]);
 
   const validInput = (currentNumber) => {
     let len = currentNumber.length;
-    if (
-      currentNumber[len - 1] !== '+' &&
-      currentNumber[len - 1] !== '-' &&
-      currentNumber[len - 1] !== '*' &&
-      currentNumber[len - 1] !== '/' &&
-      currentNumber[len - 1] !== '%' &&
-      currentNumber[len - 1] !== '.'
-    )
+    if (!['+', '-', '*', '/', '%', '.'].includes(currentNumber[len - 1]))
       return true;
     return false;
   };
 
   const handleInput = (btnPressed) => {
-    if (
-      btnPressed === '+' ||
-      btnPressed === '-' ||
-      btnPressed === '*' ||
-      btnPressed === '/' ||
-      btnPressed === '%' ||
-      btnPressed === '.'
-    ) {
+    if (['+', '-', '*', '/', '%', '.'].includes(btnPressed)) {
       if (
         validInput(currentNumber) &&
-        !(
-          currentNumber.length == 0 &&
-          (btnPressed == '*' ||
-            btnPressed == '/' ||
-            btnPressed == '.' ||
-            btnPressed == '%' ||
-            btnPressed == '+')
-        )
+        !(currentNumber.length == 0 && btnPressed != '-')
       ) {
         setCurrentNumber(currentNumber + btnPressed);
       } else if (
-        !validInput(currentNumber) &&
         !(
-          currentNumber.length == 0 &&
-          (btnPressed == '*' ||
-            btnPressed == '/' ||
-            btnPressed == '.' ||
-            btnPressed == '%' ||
-            btnPressed == '+')
-        ) &&
-        !(
-          currentNumber == '-' &&
-          (btnPressed == '*' ||
-            btnPressed == '/' ||
-            btnPressed == '.' ||
-            btnPressed == '%' ||
-            btnPressed == '+')
+          btnPressed != '-' &&
+          (currentNumber.length == 0 || currentNumber == '-')
         )
-      )
-        setCurrentNumber(
-          currentNumber.replace(
-            currentNumber[currentNumber.length - 1],
-            btnPressed
-          )
-        );
+      ) {
+        let temp = currentNumber.slice(0, currentNumber.length - 1);
+        setCurrentNumber(temp + btnPressed);
+      }
       return;
     }
 
@@ -109,12 +76,13 @@ export default function App() {
         setCurrentNumber('');
         return;
       case '=':
-        if (validInput(currentNumber)) {
+        if (validInput(currentNumber) && currentNumber.length != 0) {
           setLastNumber(currentNumber + '=');
           calculate();
         }
         return;
     }
+
     setCurrentNumber(currentNumber + btnPressed);
   };
 
@@ -131,7 +99,6 @@ export default function App() {
       return;
     } else {
       let result = eval(currentNumber).toString();
-      setExp([...exp, currentNumber + '=' + result]);
       setCurrentNumber(result);
       return;
     }
@@ -140,102 +107,81 @@ export default function App() {
   return (
     <View>
       <View style={styles.results}>
-        <View style={styles.historyButton}>
-          <Icon
-            name={'history'}
-            size={24}
-            color={'black'}
-            onPress={() => {
-              setShowHistory(!showHistory);
-            }}
-          />
-        </View>
         <Text style={styles.prevText}>{lastNumber}</Text>
         <TextInput
           style={styles.inputText}
           onChangeText={(text) => {
             try {
-              setCurrentNumber(text);
+              setCurrentNumber(eval(text).toString());
             } catch {
               alert('Biểu thức không hợp lệ!');
             }
           }}
           value={currentNumber}
           showSoftInputOnFocus={false}
-          selectTextOnFocus={true}
+          selectTextOnFocus={false}
         />
       </View>
 
-      <View style={!showHistory ? styles.buttons : styles.history_theme}>
-        {!showHistory ? (
-          buttons.map((btn) =>
-            btn === '=' ||
-            btn === '/' ||
-            btn === '*' ||
-            btn === '-' ||
-            btn === '+' ? (
-              <TouchableOpacity
-                key={btn}
-                style={[styles.button, { backgroundColor: '#2c7ef4' }]}
-                onPress={() => handleInput(btn)}>
-                <Text
-                  style={[styles.textButton, { color: 'white', fontSize: 28 }]}>
-                  {btn}
-                </Text>
-              </TouchableOpacity>
-            ) : //
-            btn === 0 ? (
-              <TouchableOpacity
-                key={btn}
-                style={[
-                  styles.button,
-                  {
-                    backgroundColor: '#303946',
-                    minWidth: '36%',
-                  },
-                ]}
-                onPress={() => handleInput(btn)}>
-                <Text style={styles.textButton}>{btn}</Text>
-              </TouchableOpacity>
-            ) : //
-            btn === '.' ? (
-              <TouchableOpacity
-                key={btn}
-                style={[
-                  styles.button,
-                  {
-                    backgroundColor: '#303946',
-                    minWidth: '37%',
-                  },
-                ]}
-                onPress={() => handleInput(btn)}>
-                <Text style={styles.textButton}>{btn}</Text>
-              </TouchableOpacity>
-            ) : (
-              //
-              <TouchableOpacity
-                key={btn}
-                style={[
-                  styles.button,
-                  {
-                    backgroundColor:
-                      typeof btn === 'number' ? '#303946' : '#414853',
-                  },
-                ]}
-                onPress={() => handleInput(btn)}>
-                <Text style={styles.textButton}>{btn}</Text>
-              </TouchableOpacity>
-            )
+      <View style={styles.buttons}>
+        {buttons.map((btn) =>
+          btn === '=' ||
+          btn === '/' ||
+          btn === '*' ||
+          btn === '-' ||
+          btn === '+' ? (
+            <TouchableOpacity
+              key={btn}
+              style={[styles.button, { backgroundColor: '#2c7ef4' }]}
+              onPress={() => handleInput(btn)}>
+              <Text
+                style={[styles.textButton, { color: 'white', fontSize: 28 }]}>
+                {btn}
+              </Text>
+            </TouchableOpacity>
+          ) : //
+          btn === 0 ? (
+            <TouchableOpacity
+              key={btn}
+              style={[
+                styles.button,
+                {
+                  backgroundColor: '#303946',
+                  minWidth: '36%',
+                },
+              ]}
+              onPress={() => handleInput(btn)}>
+              <Text style={styles.textButton}>{btn}</Text>
+            </TouchableOpacity>
+          ) : //
+          btn === '.' ? (
+            <TouchableOpacity
+              key={btn}
+              style={[
+                styles.button,
+                {
+                  backgroundColor: '#303946',
+                  minWidth: '37%',
+                },
+              ]}
+              onPress={() => handleInput(btn)}>
+              <Text style={styles.textButton}>{btn}</Text>
+            </TouchableOpacity>
+          ) : (
+            //
+            <TouchableOpacity
+              key={btn}
+              style={[
+                styles.button,
+                {
+                  backgroundColor:
+                    typeof btn === 'number' ? '#303946' : '#414853',
+                },
+              ]}
+              onPress={() => handleInput(btn)}>
+              <Text style={styles.textButton}>{btn}</Text>
+            </TouchableOpacity>
           )
-        ) : (
-          <ScrollView>
-            <Text style={{ textAlign: 'center', fontSize: 28, padding: 10 }}>
-              History
-            </Text>
-            {exp.map((item) => {
-              return <Text style={styles.history_text}>{item}</Text>;
-            })}
-          </ScrollView>
         )}
       </View>
     </View>
@@ -243,22 +189,6 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  icon_style: {
-    flexDirection: 'row',
-    flexWrap: 'no-wrap',
-    alignSelf: 'flex-start',
-    margin: 15,
-  },
-  historyButton: {
-    bottom: '15%',
-    margin: 15,
-    backgroundColor: '#7b8084',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
   results: {
     backgroundColor: '#282f3b',
     maxWidth: '100%',
@@ -266,19 +196,19 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'flex-end',
   },
+  expText: {
+    color: '#B5B7BB',
+    fontSize: 30,
+    marginRight: 10,
+    alignSelf: 'flex-end',
+  },
   inputText: {
+    fontSize: 40,
     height: 60,
     width: '100%',
     textAlign: 'right',
     padding: 10,
     color: '#fff',
-    fontSize: 40,
-  },
-  prevText: {
-    color: '#B5B7BB',
-    fontSize: 30,
-    marginRight: 10,
-    alignSelf: 'flex-end',
   },
   buttons: {
     width: '100%',
@@ -287,7 +217,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   button: {
-    borderColor: '#a6a0a0',
+    borderColor: '#c1c1c1',
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -296,17 +226,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   textButton: {
-    color: '#b5b7bb',
+    color: 'white',
     fontSize: 28,
-  },
-  history_theme: {
-    paddingRight: 10,
-    width: '100%',
-    height: '65%',
-    backgroundColor: '#c1c1c1',
-  },
-  history_text: {
-    fontSize: 28,
-    color: '#414853',
   },
 });
