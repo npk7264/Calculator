@@ -15,7 +15,7 @@
   - B2: Truy cập vào link https://github.com/npk7264/Calculator
   - B3: Click vào code -> download zip
 
-    ![](image_readme\1.png)
+    <!-- ![](image_readme\1.png) -->
 
   - B4: Giải nén file vừa tải vào thư mục vừa tạo
 
