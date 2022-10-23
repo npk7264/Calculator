@@ -14,8 +14,9 @@ export default function App() {
   const [currentNumber, setCurrentNumber] = useState('');
   const [lastNumber, setLastNumber] = useState('');
   const buttons = 
-  ['C', '%', 'DEL', '/',
-    7, 8, 9, '*',
+  [
+    'C', '%', 'DEL', '/',
+    7, 8,  9, '*',
     4, 5, 6, '-',
     1, 2, 3, '+',
     0, '.', '=',
@@ -153,12 +154,10 @@ export default function App() {
                 styles.button,
                 ['+', '-', '*', '/', '='].includes(btn)
                   ? { backgroundColor: '#2c7ef4' }
-                  : btn == 0
-                  ? { backgroundColor: '#303946', minWidth: '36%' }
-                  : btn == '.'
-                  ? { backgroundColor: '#303946', minWidth: '37%' }
                   : {
-                      backgroundColor: typeof btn === 'number' ? '#303946' : '#414853',
+                      backgroundColor: ['C', '%', 'DEL'].includes(btn)
+                        ? '#414853': '#303946',
+                      minWidth: btn == 0 ? '36%' : btn == '.' ? '37%' : '24%',
                     },
               ]}
               onPress={() => handleInput(btn)}>
@@ -172,11 +171,15 @@ export default function App() {
                 History
               </Text>
               {searchChange
-                ? filteredText.map((item1) => {
-                    return <Text key={item1} style={styles.historyText}>{item1}</Text>;
+                ? filteredText.map((ftext, index) => {
+                    return (
+                      <Text key={index} style={styles.historyText}>{ftext}</Text>
+                    );
                   })
-                : prevResults.map((item2) => {
-                    return <Text key={item2} style={styles.historyText}>{item2}</Text>;
+                : prevResults.map((presult, index) => {
+                    return (
+                      <Text key={index} style={styles.historyText}>{presult}</Text>
+                    );
                   })}
             </ScrollView>
             <Text
