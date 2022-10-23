@@ -27,16 +27,23 @@
   - `node` là tên image
   - `calculator` là tên container
   - `(dd*)` là đường dẫn thư mục chứa project của bạn
-    > docker run -u node -it --rm --name calculator -p 19000-19010:19000-19010 -v (dd\*):/current -w /current node:18-slim bash
+
+```powershell
+docker run -u node -it --rm --name calculator -p 19000-19010:19000-19010 -v (dd\*):/current -w /current node:18-slim bash
+```
 
 - B3: cd vào thư mục Calculator
 - B4: Chạy lệnh:
 
-  > npm install
+```powershell
+npm install
+```
 
 - B5: Chạy lệnh:
 
-  > npm start
+```powershell
+npm start
+```
 
 - B6: Tải app expo go trên điện thoại
 - B7: Mở app expo go trên điện thoại
