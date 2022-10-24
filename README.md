@@ -1,3 +1,13 @@
+# THÔNG TIN NHÓM N06
+
+- Nguyễn Phúc Khang - 20520569
+- Võ Trung Kiên - 20521492
+- Bùi Duy Anh Đức - 20520047
+- Hà Văn Linh - 20521529
+
+-----
+
+
 # Installation Instructions Calculator
 
 ## Tải code về máy
@@ -54,11 +64,6 @@ npm start
 
 - B9: Connect và sử dụng ứng dụng
 
----
 
-# THÔNG TIN NHÓM N06
 
-- Nguyễn Phúc Khang - 20520569
-- Võ Trung Kiên - 20521492
-- Bùi Duy Anh Đức - 20520047
-- Hà Văn Linh - 20521529
+
