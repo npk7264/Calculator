@@ -6,6 +6,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -169,7 +170,7 @@ export default function App() {
                       backgroundColor: ["C", "%", "DEL"].includes(btn)
                         ? "#414853"
                         : "#303946",
-                      minWidth: btn == 0 ? "36%" : btn == "." ? "37%" : "24%",
+                      minWidth: btn == 0 ? Platform.OS === "web"? "38%" : "36%" : btn == "." ? "37%" : "24%", 
                     },
               ]}
               onPress={() => handleInput(btn)}
