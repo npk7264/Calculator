@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { StyleSheet, View, ScrollView, Text, TextInput, TouchableOpacity, } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 
 import Icon from "react-native-vector-icons/FontAwesome";
 
@@ -59,7 +66,10 @@ export default function App() {
         <TextInput
           style={styles.inputText}
           onChangeText={(text) => {
-            setCurrentNumber(text);
+            if (text[text.length-1] == "÷") {setCurrentNumber(currentNumber+"/")}
+            else if (text[text.length-1] == "×") {setCurrentNumber(currentNumber+"*")}
+            else if (text[text.length-1] == "^") {setCurrentNumber(currentNumber+"**")}
+            else {setCurrentNumber(text);}
           }}
           value={currentNumber}
           placeholder="Enter expression"
@@ -72,14 +82,18 @@ export default function App() {
               try {
                 let temp = eval(currentNumber).toString();
                 setLastNumber(temp);
-                setHistoryExpressions([...historyExpressions, { expression: currentNumber, result: temp },
+                setHistoryExpressions([
+                  ...historyExpressions,
+                  { expression: currentNumber, result: temp },
                 ]);
               } catch {
                 setLastNumber("");
               }
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 25, fontWeight: "bold" }}>=</Text>
+            <Text style={{ color: "#fff", fontSize: 25, fontWeight: "bold" }}>
+              =
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.buttonEqual}
@@ -88,27 +102,52 @@ export default function App() {
               setLastNumber("");
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 15, fontWeight: "bold" }}>CLEAR</Text>
+            <Text style={{ color: "#fff", fontSize: 15, fontWeight: "bold" }}>
+              CLEAR
+            </Text>
           </TouchableOpacity>
         </View>
         <Text style={styles.expText}>{lastNumber}</Text>
       </View>
 
       <View style={styles.historyList}>
-        <Text style={{ textAlign: "center", fontSize: 28, fontWeight: "bold", padding: 5, }}>History</Text>
+        <Text
+          style={{
+            textAlign: "center",
+            fontSize: 28,
+            fontWeight: "bold",
+            padding: 5,
+          }}
+        >
+          History
+        </Text>
         <ScrollView style={{ height: "80%", marginLeft: 10 }}>
           {searchChange
             ? filteredText.map((item, index) => {
                 return (
-                  <Text key={index} style={[styles.historyText, {fontWeight: "bold"}]}>
+                  <Text
+                    key={index}
+                    style={[styles.historyText, { fontWeight: "bold" }]}
+                    onPress={() => {
+                      setCurrentNumber(item.expression),
+                        setLastNumber(item.result);
+                    }}
+                  >
                     {item.expression + "=" + item.result}
                   </Text>
                 );
               })
             : historyExpressions.map((item, index) => {
                 return (
-                  <Text key={index} style={styles.historyText}>
-                    {item.expression + "=" + item.result} 
+                  <Text
+                    key={index}
+                    style={styles.historyText}
+                    onPress={() => {
+                      setCurrentNumber(item.expression),
+                        setLastNumber(item.result);
+                    }}
+                  >
+                    {item.expression + "=" + item.result}
                   </Text>
                 );
               })}
