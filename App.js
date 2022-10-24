@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -6,16 +6,18 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-} from 'react-native';
+  Platform,
+} from "react-native";
 
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from "react-native-vector-icons/FontAwesome";
 
 export default function App() {
-  const [currentNumber, setCurrentNumber] = useState('');
-  const [lastNumber, setLastNumber] = useState('');
+  const [currentNumber, setCurrentNumber] = useState("");
+  const [lastNumber, setLastNumber] = useState("");
   const buttons = 
-  ['C', '%', 'DEL', '/',
-    7, 8, 9, '*',
+  [
+    'C', '%', 'DEL', '/',
+    7, 8,  9, '*',
     4, 5, 6, '-',
     1, 2, 3, '+',
     0, '.', '=',
@@ -27,27 +29,27 @@ export default function App() {
   const [searchIcon, setSearchIcon] = useState(false);
   // check if search TextInput change
   const [searchChange, setSearchChange] = useState(false);
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   const [filteredText, setFilteredText] = useState([]);
 
   const validInput = (currentNumber) => {
     let len = currentNumber.length;
-    if (!['+', '-', '*', '/', '%', '.'].includes(currentNumber[len - 1]))
+    if (!["+", "-", "*", "/", "%", "."].includes(currentNumber[len - 1]))
       return true;
     return false;
   };
 
   const handleInput = (btnPressed) => {
-    if (['+', '-', '*', '/', '%', '.'].includes(btnPressed)) {
+    if (["+", "-", "*", "/", "%", "."].includes(btnPressed)) {
       if (
         validInput(currentNumber) &&
-        !(currentNumber.length == 0 && btnPressed != '-')
+        !(currentNumber.length == 0 && btnPressed != "-")
       ) {
         setCurrentNumber(currentNumber + btnPressed);
       } else if (
         !(
-          btnPressed != '-' &&
-          (currentNumber.length == 0 || currentNumber == '-')
+          btnPressed != "-" &&
+          (currentNumber.length == 0 || currentNumber == "-")
         )
       ) {
         let temp = currentNumber.slice(0, currentNumber.length - 1);
@@ -57,27 +59,40 @@ export default function App() {
     }
 
     switch (btnPressed) {
-      case 'DEL':
+      case "DEL":
         setCurrentNumber(currentNumber.substring(0, currentNumber.length - 1));
         return;
-      case 'C':
-        setLastNumber('');
-        setCurrentNumber('');
+      case "C":
+        setLastNumber("");
+        setCurrentNumber("");
         return;
-      case '=':
+      case "=":
         if (validInput(currentNumber) && currentNumber.length != 0) {
-          setLastNumber(currentNumber + '=');
+          setLastNumber(currentNumber + "=");
           calculate();
         }
         return;
     }
 
-    setCurrentNumber(currentNumber + btnPressed);
+    handleNumber(btnPressed)    
+  };
+
+  const handleNumber = (btnPressed) => {
+    if (
+      currentNumber.length == 0 ||
+      (currentNumber.length == 1 && currentNumber !== "0") ||
+      (currentNumber.length > 1 &&
+        !(
+          currentNumber[currentNumber.length - 1] === "0" &&
+          ["+", "-", "*", "/", "%"].includes(currentNumber[currentNumber.length - 2])
+        ))
+    )
+      setCurrentNumber(currentNumber + btnPressed);
   };
 
   const calculate = () => {
     let result = eval(currentNumber).toString();
-    setPrevResults([...prevResults, currentNumber + '=' + result]);
+    setPrevResults([...prevResults, currentNumber + "=" + result]);
     setCurrentNumber(result);
     return;
   };
@@ -92,7 +107,7 @@ export default function App() {
       setSearchText(text);
     } else {
       setSearchChange(false);
-      setSearchText('');
+      setSearchText("");
     }
   };
 
@@ -108,39 +123,37 @@ export default function App() {
                 searchFilter(text);
               }}
               value={searchText}
-              placeholder="Search Here"
+              placeholder="Search History"
+              keyboardType="visible-password"
             />
           ) : null}
-
           <View style={styles.historyButton}>
             <Icon
-              name={!showHistory ? 'history' : 'calculator'}
+              name={!showHistory ? "history" : "calculator"}
               size={24}
-              color={'black'}
+              color={"black"}
               onPress={() => {
                 setSearchIcon(!searchIcon);
                 setShowHistory(!showHistory);
                 setSearchChange(false);
-                setSearchText('');
+                setSearchText("");
               }}
             />
           </View>
         </View>
 
-        <Text style={styles.expText}>{lastNumber}</Text>
-
+        <TextInput style={styles.expText} value={lastNumber} showSoftInputOnFocus={false}/>
         <TextInput
           style={styles.inputText}
           onChangeText={(text) => {
             try {
-              if (typeof eval(text) == 'number') setCurrentNumber(text);
+              if (typeof eval(text) == "number") setCurrentNumber(text);
             } catch {
-              alert('Biểu thức không hợp lệ!');
+              alert("Biểu thức không hợp lệ!");
             }
           }}
           value={currentNumber}
           showSoftInputOnFocus={false}
-          selectTextOnFocus={false}
         />
       </View>
 
@@ -151,41 +164,43 @@ export default function App() {
               key={btn}
               style={[
                 styles.button,
-                ['+', '-', '*', '/', '='].includes(btn)
-                  ? { backgroundColor: '#2c7ef4' }
-                  : btn == 0
-                  ? { backgroundColor: '#303946', minWidth: '36%' }
-                  : btn == '.'
-                  ? { backgroundColor: '#303946', minWidth: '37%' }
+                ["+", "-", "*", "/", "="].includes(btn)
+                  ? { backgroundColor: "#2c7ef4" }
                   : {
-                      backgroundColor:
-                        typeof btn === 'number' ? '#303946' : '#414853',
+                      backgroundColor: ["C", "%", "DEL"].includes(btn)
+                        ? "#414853"
+                        : "#303946",
+                      minWidth: btn == 0 ? Platform.OS === "web"? "38%" : "36%" : btn == "." ? "37%" : "24%", 
                     },
               ]}
-              onPress={() => handleInput(btn)}>
+              onPress={() => handleInput(btn)}
+            >
               <Text style={styles.textButton}>{btn}</Text>
             </TouchableOpacity>
           ))
         ) : (
           <View>
-            <ScrollView style={{ height: '90%' }}>
-              <Text style={{ textAlign: 'center', fontSize: 28, padding: 10 }}>
-                History
-              </Text>
+            <Text style={{textAlign: "center", fontSize: 28, fontWeight: "bold", padding: 5,}}>History</Text>
+            <ScrollView style={{ height: "80%" }}>
               {searchChange
-                ? filteredText.map((item) => {
-                    return <Text style={styles.historyText}>{item}</Text>;
+                ? filteredText.map((ftext, index) => {
+                    return (
+                      <Text key={index} style={styles.historyText}>{ftext}</Text>
+                    );
                   })
-                : prevResults.map((item) => {
-                    return <Text style={styles.historyText}>{item}</Text>;
+                : prevResults.map((presult, index) => {
+                    return (
+                      <Text key={index} style={styles.historyText}>{presult}</Text>
+                    );
                   })}
             </ScrollView>
             <Text
-              style={{ fontSize: 16, textAlign: 'center', paddingTop: 5 }}
+              style={{fontSize: 18, fontWeight: "bold", textAlign: "center", alignSelf: "center", padding: 5, color: "#2c7ef4", width: "36%",}}
               onPress={() => {
                 setPrevResults([]);
                 setFilteredText([]);
-              }}>
+              }}
+            >
               Delete history
             </Text>
           </View>
@@ -197,79 +212,80 @@ export default function App() {
 
 const styles = StyleSheet.create({
   menu: {
-    flexDirection: 'row',
-    bottom: '10%',
+    flexDirection: "row",
+    bottom: "10%",
   },
   historyButton: {
     margin: 10,
-    backgroundColor: '#c1c1c1',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#c1c1c1",
+    alignItems: "center",
+    justifyContent: "center",
     width: 50,
     height: 50,
     borderRadius: 25,
   },
   searchBar: {
     margin: 10,
-    backgroundColor: '#c1c1c1',
+    backgroundColor: "#c1c1c1",
     fontSize: 18,
-    textAlign: 'right',
+    textAlign: "right",
     padding: 10,
-    width: '75%',
+    width: "75%",
     height: 50,
     borderRadius: 25,
   },
   results: {
-    backgroundColor: '#282f3b',
-    maxWidth: '100%',
-    minHeight: '35%',
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end',
+    backgroundColor: "#282f3b",
+    maxWidth: "100%",
+    minHeight: "35%",
+    alignItems: "flex-end",
+    justifyContent: "flex-end",
   },
   expText: {
-    color: '#B5B7BB',
+    color: "#B5B7BB",
     fontSize: 30,
-    marginRight: 10,
-    alignSelf: 'flex-end',
+    padding: 10,
+    textAlign: "right",
+    width: "100%",
   },
   inputText: {
     fontSize: 40,
     height: 60,
-    width: '100%',
-    textAlign: 'right',
+    width: "100%",
+    textAlign: "right",
     padding: 10,
-    color: '#fff',
+    color: "#fff",
   },
   buttons: {
-    width: '100%',
-    height: '35%',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    width: "100%",
+    height: "35%",
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
   button: {
-    borderColor: '#c1c1c1',
+    borderColor: "#c1c1c1",
     borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: '24%',
-    minHeight: '54%',
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: "24%",
+    minHeight: "54%",
     flex: 1,
   },
   textButton: {
-    color: '#b5b7bb',
+    color: "#b5b7bb",
     fontSize: 28,
   },
   historyList: {
     paddingRight: 10,
-    width: '100%',
-    height: '65%',
-    backgroundColor: '#c1c1c1',
+    width: "100%",
+    height: "65%",
+    backgroundColor: "#c1c1c1",
   },
   historyText: {
     fontSize: 22,
-    color: '#414853',
+    color: "#414853",
     marginHorizontal: 10,
     marginVertical: 5,
-    textAlign: 'right',
+    textAlign: "right",
   },
 });
