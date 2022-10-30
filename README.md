@@ -39,7 +39,7 @@
   - `(dd*)` là đường dẫn thư mục chứa project của bạn
 
 ```powershell
-docker run -u node -it --rm --name calculator -p 19000-19010:19000-19010 -v (dd\*):/current -w /current node:18-slim bash
+docker run -u node -it --rm --name calculator -p 19000-19010:19000-19010 -v (dd\*):/current -w /current node:16-slim bash
 ```
 
 - B3: cd vào thư mục Calculator
