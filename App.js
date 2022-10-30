@@ -37,7 +37,7 @@ export default function App() {
             if (text[text.length - 1] == '÷' || text[text.length - 1] == ':') {
               setCurrentNumber(currentNumber + '/');
             } else if (
-              text[text.length - 1] == 'x' || text[text.length - 1] == 'x' ) {
+              text[text.length - 1] == '×' || text[text.length - 1] == 'x' ) {
               setCurrentNumber(currentNumber + '*');
             } else if (text[text.length - 1] == '^') {
               setCurrentNumber(currentNumber + '**');
@@ -106,15 +106,15 @@ export default function App() {
           {
             (searchChange? filteredText: historyExpressions).map((item, index) => {
                 return (
-                  <Text
+                  <TouchableOpacity
                     key={index}
-                    style={[styles.historyText, { fontWeight: searchChange? 'bold': null }]}
                     onPress={() => {
                       setCurrentNumber(item.expression);
                       setLastNumber(item.result);
                     }}>
-                    {item.expression + '\n' + item.result}
-                  </Text>
+                    <Text style={[styles.historyText, { fontWeight: searchChange? 'bold': null }]}>
+                      {item.expression + '\n' + item.result}</Text>
+                  </TouchableOpacity>
                 );
               })
           }
