@@ -11,6 +11,9 @@ export default function App() {
   const [searchChange, setSearchChange] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [filteredText, setFilteredText] = useState([]);
+  // onfocus
+  const [expFocus, setExpFocus] = useState(false);
+  const [historyFocus, setHistoryFocus] = useState(false);
 
   const searchFilter = (text) => {
     // Check if searched text is not blank
@@ -32,7 +35,7 @@ export default function App() {
     <View style={{height: '100%', backgroundColor: '#282f3b'}}>
       <View style={{top: '10%', alignItems: 'center', paddingBottom: 16}}>
         <TextInput
-          style={styles.inputText}
+          style={[styles.inputText, expFocus? {borderWidth: 3, borderColor: "#00c04b"}: null]}
           onChangeText={(text) => {
             if (text[text.length - 1] == '÷' || text[text.length - 1] == ':') {
               setCurrentNumber(currentNumber + '/');
@@ -41,10 +44,9 @@ export default function App() {
               setCurrentNumber(currentNumber + '*');
             } else if (text[text.length - 1] == '^') {
               setCurrentNumber(currentNumber + '**');
-            } else {
-              setCurrentNumber(text);
-            }
+            } else setCurrentNumber(text);
           }}
+          onFocus={()=>{setExpFocus(true)}} onBlur={()=>{setExpFocus(false)}}
           value={currentNumber}
           placeholder="Enter expression"
           keyboardType="visible-password"
@@ -82,11 +84,12 @@ export default function App() {
         </Text>
         <View style={styles.searchMenu}>
           <TextInput
-            style={styles.searchBar}
+            style={[styles.searchBar, historyFocus? {borderWidth: 3, borderColor: "#00c04b"}: null]}
             onChangeText={(text) => {
               setSearchChange(true);
               searchFilter(text);
             }}
+            onFocus={()=>{setHistoryFocus(true)}} onBlur={()=>{setHistoryFocus(false)}}
             value={searchText}
             placeholder="Search History"
             keyboardType="visible-password"
@@ -150,14 +153,15 @@ const styles = StyleSheet.create({
   inputText: {
     fontSize: 30,
     width: '92%',
+    height: 60,
     textAlign: 'right',
-    padding: 10,
+    paddingHorizontal: 10,
     color: '#000',
     backgroundColor: '#fff',
     borderRadius: 25,
   },
   resultText: {
-    color: '#2c7ef4',
+    color: '#ff6600',
     fontWeight: 'bold',
     fontSize: 30,
     padding: 10,
