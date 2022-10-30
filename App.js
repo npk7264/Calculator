@@ -37,7 +37,7 @@ export default function App() {
             if (text[text.length - 1] == '÷' || text[text.length - 1] == ':') {
               setCurrentNumber(currentNumber + '/');
             } else if (
-              text[text.length - 1] == '×' || text[text.length - 1] == 'x' ) {
+              text[text.length - 1] == 'x' || text[text.length - 1] == 'x' ) {
               setCurrentNumber(currentNumber + '*');
             } else if (text[text.length - 1] == '^') {
               setCurrentNumber(currentNumber + '**');
@@ -72,7 +72,7 @@ export default function App() {
             <Text style={{ color: '#fff', fontSize: 15, fontWeight: 'bold' }}>CLEAR</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.resultText}>{lastNumber}</Text>
+        <Text style={styles.resultText} numberOfLines={1}>{lastNumber}</Text>
       </View>
 
       <View style={{top: '10%'}}>
