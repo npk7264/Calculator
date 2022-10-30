@@ -4,8 +4,8 @@ import { StyleSheet, View, ScrollView, Text, TextInput, TouchableOpacity, } from
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function App() {
-  const [currentNumber, setCurrentNumber] = useState('');
-  const [lastNumber, setLastNumber] = useState('');
+  const [inputExpression, setInputExpression] = useState('');
+  const [resultNumber, setResultNumber] = useState('');
   const [historyExpressions, setHistoryExpressions] = useState([]);
   // check if search TextInput change
   const [searchChange, setSearchChange] = useState(false);
@@ -38,16 +38,16 @@ export default function App() {
           style={[styles.inputText, expFocus? {borderWidth: 3, borderColor: "#00c04b"}: null]}
           onChangeText={(text) => {
             if (text[text.length - 1] == '÷' || text[text.length - 1] == ':') {
-              setCurrentNumber(currentNumber + '/');
+              setInputExpression(inputExpression + '/');
             } else if (
               text[text.length - 1] == 'x' || text[text.length - 1] == 'x' ) {
-              setCurrentNumber(currentNumber + '*');
+              setInputExpression(inputExpression + '*');
             } else if (text[text.length - 1] == '^') {
-              setCurrentNumber(currentNumber + '**');
-            } else setCurrentNumber(text);
+              setInputExpression(inputExpression + '**');
+            } else setInputExpression(text);
           }}
           onFocus={()=>{setExpFocus(true)}} onBlur={()=>{setExpFocus(false)}}
-          value={currentNumber}
+          value={inputExpression}
           placeholder="Enter expression"
           keyboardType="visible-password"
         />
@@ -56,11 +56,14 @@ export default function App() {
             style={[styles.button, {width: '20%'}]}
             onPress={() => {
               try {
-                let temp = eval(currentNumber).toString();
-                setLastNumber(temp);
-                setHistoryExpressions([...historyExpressions, { expression: currentNumber, result: temp },]);
+                let temp = eval(inputExpression).toString();
+                setResultNumber(temp);
+                if(historyExpressions.some((item)=>{
+                  return item.expression == inputExpression && item.result == temp
+                }) == false)
+                  setHistoryExpressions([...historyExpressions, { expression: inputExpression, result: temp },]);
               } catch {
-                setLastNumber('');
+                setResultNumber('');
               }
             }}>
             <Text style={{ color: '#fff', fontSize: 25, fontWeight: 'bold' }}>=</Text>
@@ -68,13 +71,13 @@ export default function App() {
           <TouchableOpacity
             style={[styles.button, {width: '20%'}]}
             onPress={() => {
-              setCurrentNumber('');
-              setLastNumber('');
+              setInputExpression('');
+              setResultNumber('');
             }}>
             <Text style={{ color: '#fff', fontSize: 15, fontWeight: 'bold' }}>CLEAR</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.resultText} numberOfLines={1}>{lastNumber}</Text>
+        <Text style={styles.resultText} numberOfLines={1}>{resultNumber}</Text>
       </View>
 
       <View style={{top: '10%'}}>
@@ -112,11 +115,20 @@ export default function App() {
                   <TouchableOpacity
                     key={index}
                     onPress={() => {
-                      setCurrentNumber(item.expression);
-                      setLastNumber(item.result);
+                      setInputExpression(item.expression);
+                      setResultNumber(item.result);
                     }}>
-                    <Text style={[styles.historyText, { fontWeight: searchChange? 'bold': null }]}>
-                      {item.expression + '\n' + item.result}</Text>
+                  <Text
+                    style={[
+                      styles.historyText,
+                      { fontWeight: searchChange ? "bold" : null },
+                    ]}
+                  >
+                    {item.expression}
+                    <Text style={{ color: "#669933" }}>
+                      {"\n" + item.result}
+                    </Text>
+                  </Text>
                   </TouchableOpacity>
                 );
               })
@@ -161,7 +173,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   resultText: {
-    color: '#ff6600',
+    color: '#669933',
     fontWeight: 'bold',
     fontSize: 30,
     padding: 10,
